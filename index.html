@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ComfyUI Mini - Static</title>
+
+    <!-- Theme CSS (default to dark) -->
+    <link rel="stylesheet" href="assets/css/theme/dark.css" id="theme-css" />
+    <link rel="stylesheet" href="assets/css/partial/base.css" />
+    <link rel="stylesheet" href="assets/css/workflow.css" />
+    <link rel="stylesheet" href="assets/css/index.css" />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon_16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon_32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/img/favicon_48.png" />
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/img/favicon_64.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/img/android-chrome-icon.png" />
+
+    <!-- Main application script -->
+    <script src="assets/js/app.js" defer type="module"></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <a class="navbar-icon" href="#" onclick="showHomeView()">
+            <img src="assets/img/android-chrome-icon.png" alt="ComfyUI Mini Icon" />
+        </a>
+        <div id="sidebar-toggle">
+            <span class="icon sidebar"></span>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="hidden">
+        <div id="sidebar-list">
+            <a href="#" onclick="showHomeView()" class="sidebar-list-item active" id="home-link">
+                <span class="icon home"></span>
+                <span class="sidebar-list-item-text">Home</span>
+            </a>
+            <a href="#" onclick="showImportView()" class="sidebar-list-item" id="import-link">
+                <span class="icon import"></span>
+                <span class="sidebar-list-item-text">Import</span>
+            </a>
+            <div class="sidebar-list-item sidebar-list-item-dropdown" id="workflows-dropdown">
+                <span class="icon server"></span>
+                <span class="sidebar-list-item-text">Workflows</span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+            <div class="sidebar-dropdown-list hidden" id="workflow-list">
+                <span>Loading workflows...</span>
+            </div>
+            <a href="#" onclick="showSettingsView()" class="sidebar-list-item" id="settings-link">
+                <span class="icon settings"></span>
+                <span class="sidebar-list-item-text">Settings</span>
+            </a>
+        </div>
+    </div>
+    <div id="sidebar-overlay" class="hidden"></div>
+
+    <!-- Main Application Container -->
+    <div id="app-container">
+        <!-- Home View -->
+        <div id="home-view" class="view active">
+            <div class="main-container">
+                <h1 class="category-title">ComfyUI Mini - Static</h1>
+                <div class="workflow-grid" id="workflow-grid">
+                    <!-- Workflow cards will be populated here -->
+                </div>
+                <div class="settings-section">
+                    <h2 class="category-title">Configuration</h2>
+                    <div class="config-section">
+                        <label for="comfyui-url">ComfyUI Server URL:</label>
+                        <input type="text" id="comfyui-url" placeholder="http://127.0.0.1:8188" />
+                        <button onclick="saveConfig()">Save Config</button>
+                        <button onclick="testConnection()">Test Connection</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow View -->
+        <div id="workflow-view" class="view hidden">
+            <div class="main-container">
+                <span class="title-text">
+                    <h1 class="workflow-title" id="workflow-title">Workflow</h1>
+                </span>
+                <h2 class="category-title">Inputs</h2>
+                <div class="inputs-container" id="inputs-container"></div>
+                <div class="run-button-wrapper">
+                    <button class="run-workflow" id="run-workflow">Run workflow</button>
+                </div>
+                <button class="cancel-run-button disabled" id="cancel-run">Cancel</button>
+                <div class="progress-bars">
+                    <span class="progress-bar-label">Total progress</span>
+                    <div class="total-images-progress progress-bar">
+                        <span class="progress-bar-text" id="total-progress-text">0%</span>
+                        <div class="progress-bar-inner" id="total-progress-bar"></div>
+                    </div>
+                    <span class="progress-bar-label">Current image progress</span>
+                    <div class="current-image-progress progress-bar">
+                        <span class="progress-bar-text" id="current-progress-text">0%</span>
+                        <div class="progress-bar-inner" id="current-progress-bar"></div>
+                    </div>
+                </div>
+                <h2 class="category-title">Output</h2>
+                <div class="output-images-container" id="output-images-container">
+                    <div class="image-placeholder-hint">Press 'Run workflow' to generate an image</div>
+                </div>
+                <div class="previous-outputs-container">
+                    <div class="previous-outputs-toggler" id="previous-outputs-toggler">
+                        <span class="previous-outputs-toggler-icon">^^^</span>
+                        <span class="previous-outputs-toggler-text">Show previous outputs</span>
+                        <span class="previous-outputs-toggler-icon">^^^</span>
+                    </div>
+                    <div class="previous-outputs-list hidden" id="previous-outputs-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Import View -->
+        <div id="import-view" class="view hidden">
+            <div class="main-container">
+                <h1 class="category-title">Import Workflow</h1>
+                <div class="import-section">
+                    <label for="workflow-file">Select ComfyUI Workflow JSON:</label>
+                    <input type="file" id="workflow-file" accept=".json" />
+                    <button onclick="importWorkflow()">Import Workflow</button>
+                </div>
+                <div class="import-instructions">
+                    <h3>Instructions:</h3>
+                    <ol>
+                        <li>Export your workflow from ComfyUI as API format JSON</li>
+                        <li>Select the JSON file using the file input above</li>
+                        <li>Click "Import Workflow" to add it to your collection</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings View -->
+        <div id="settings-view" class="view hidden">
+            <div class="main-container">
+                <h1 class="category-title">Settings</h1>
+                <div class="settings-section">
+                    <h3>ComfyUI Configuration</h3>
+                    <div class="setting-item">
+                        <label for="settings-comfyui-url">ComfyUI Server URL:</label>
+                        <input type="text" id="settings-comfyui-url" placeholder="http://127.0.0.1:8188" />
+                    </div>
+                    <div class="setting-item">
+                        <label for="settings-comfyui-ws">ComfyUI WebSocket URL:</label>
+                        <input type="text" id="settings-comfyui-ws" placeholder="ws://127.0.0.1:8188" />
+                    </div>
+                    <div class="setting-item">
+                        <label for="theme-selector">Theme:</label>
+                        <select id="theme-selector">
+                            <option value="dark">Dark</option>
+                            <option value="light">Light</option>
+                            <option value="aurora">Aurora</option>
+                            <option value="conifer">Conifer</option>
+                            <option value="midnight">Midnight</option>
+                            <option value="nord">Nord</option>
+                            <option value="whiteout">Whiteout</option>
+                        </select>
+                    </div>
+                    <button onclick="saveSettings()">Save Settings</button>
+                </div>
+                <div class="data-section">
+                    <h3>Data Management</h3>
+                    <button onclick="exportData()">Export All Data</button>
+                    <button onclick="importData()">Import Data</button>
+                    <button onclick="clearAllData()" class="danger">Clear All Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup/Modal Container -->
+    <div id="popup-container" class="hidden">
+        <div class="popup-overlay"></div>
+        <div class="popup-content">
+            <div class="popup-header">
+                <h3 id="popup-title">Message</h3>
+                <span class="popup-close" onclick="closePopup()">&times;</span>
+            </div>
+            <div class="popup-body" id="popup-body">
+                <p id="popup-message"></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,31 @@
+# Static version specific ignores
+
+# Development files (keep original source for reference)
+src/
+node_modules/
+package*.json
+tsconfig*.json
+.eslintrc*
+.prettierrc*
+
+# Build artifacts
+dist/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env*
+
+# Keep only the static files needed for deployment
+!index.html
+!assets/
+!README-static.md
